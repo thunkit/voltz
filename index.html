@@ -1,0 +1,2502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VOLTZ — University Energy Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    /* ── DESIGN TOKENS ─────────────────────────────────── */
+    :root {
+      --bg:          #0D1420;
+      --surface:     #131F32;
+      --surface2:    #172640;
+      --surface3:    #1D2E4E;
+      --border:      #253555;
+      --border2:     #1A2840;
+      --accent:      #C9A854;
+      --accent-dim:  #9B7C32;
+      --accent-light:rgba(201,168,84,0.14);
+      --accent-glow: rgba(201,168,84,0.08);
+      --text1:       #EDE6D4;
+      --text2:       #8A9DB8;
+      --text3:       #3A5070;
+      --red:         #E06060;
+      --amber:       #D4903A;
+      --green:       #3DAA72;
+      --blue:        #5A9FE0;
+      --tag-bg:      #172640;
+      --tag-border:  #253555;
+
+      /* ── backward-compat aliases for inline styles ── */
+      --white:        #EDE6D4;
+      --navy:         #172640;
+      --navy-light:   #131F32;
+      --navy-border:  #253555;
+      --blue-light:   rgba(90,159,224,0.10);
+      --green-light:  rgba(61,170,114,0.10);
+      --green-border: rgba(61,170,114,0.30);
+      --amber-light:  rgba(212,144,58,0.10);
+      --amber-border: rgba(212,144,58,0.30);
+      --red-light:    rgba(224,96,96,0.10);
+      --red-border:   rgba(224,96,96,0.30);
+      --gray-50:      #131F32;
+      --gray-100:     #172640;
+      --gray-200:     #253555;
+      --gray-400:     #8A9DB8;
+      --gray-600:     #8A9DB8;
+      --gray-700:     #8A9DB8;
+      --gray-800:     #EDE6D4;
+      --shadow:       0 2px 8px rgba(0,0,0,0.35);
+      --shadow-md:    0 6px 24px rgba(0,0,0,0.5);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text1);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── TOPBAR ─────────────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,20,32,0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar-inner {
+      height: 56px;
+      padding: 0 28px;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-decoration: none;
+    }
+
+    .logo-text {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 18px;
+      color: var(--accent);
+      letter-spacing: 0.3em;
+    }
+
+    .logo-tagline {
+      font-size: 11px;
+      color: var(--text3);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+      border-left: 1px solid var(--border);
+      padding-left: 16px;
+    }
+
+    .logo-bolt { display: none; }
+
+    .topbar-system-tag {
+      font-size: 11px;
+      color: var(--text3);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* ── STEP BAR ────────────────────────────────────────── */
+    .step-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step-bar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 28px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+    }
+
+    .progress-bar { display: contents; }
+
+    .progress-step {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text3);
+      white-space: nowrap;
+    }
+
+    .progress-step.active { color: var(--accent); }
+    .progress-step.done   { color: var(--text2); }
+
+    .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text3);
+      flex-shrink: 0;
+    }
+
+    .progress-step.active .step-num {
+      background: var(--accent);
+      color: #1a1000;
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(201,168,84,0.4);
+    }
+    .progress-step.done .step-num {
+      background: var(--green);
+      color: #0a2015;
+      border-color: var(--green);
+    }
+
+    .progress-connector {
+      width: 32px;
+      height: 1px;
+      background: var(--border);
+      margin: 0 10px;
+      flex-shrink: 0;
+    }
+    .progress-connector.done { background: var(--green); }
+
+    /* ── MAIN ────────────────────────────────────────────── */
+    main { max-width: 1100px; margin: 0 auto; padding: 36px 24px 80px; }
+
+    .screen { display: none; animation: fadeIn .3s ease; }
+    .screen.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── CARDS ───────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border-radius: 14px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .card-sm { padding: 18px; }
+
+    /* ── BUTTONS ─────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 200ms ease;
+      text-decoration: none;
+    }
+
+    .btn-primary, .btn-green, .btn-navy {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
+      color: #1a1000;
+      box-shadow: 0 2px 12px rgba(201,168,84,0.35);
+    }
+    .btn-primary:hover, .btn-green:hover, .btn-navy:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(201,168,84,0.5);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text2);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { background: var(--surface2); color: var(--text1); border-color: var(--text3); }
+
+    .btn-lg { padding: 12px 32px; font-size: 14px; }
+    .btn-block { width: 100%; justify-content: center; }
+
+    /* ── SECTION HEADERS ─────────────────────────────────── */
+    .section-title {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--text1);
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+    .section-subtitle {
+      font-size: 14px;
+      color: var(--text2);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    /* ── FORM (SCREEN 1) ─────────────────────────────────── */
+    .form-hero {
+      margin-bottom: 28px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .form-hero h1 {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 40px;
+      font-weight: bold;
+      color: var(--text1);
+      margin-bottom: 10px;
+      line-height: 1.1;
+    }
+    .form-hero p {
+      font-size: 15px;
+      color: var(--text2);
+      line-height: 1.7;
+      max-width: 560px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+
+    .form-group { display: flex; flex-direction: column; gap: 7px; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    input, select {
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--text1);
+      background: var(--surface2);
+      height: 42px;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+      font-family: inherit;
+    }
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(201,168,84,0.15);
+    }
+    input::placeholder { color: var(--text3); }
+    select option { background: var(--surface2); color: var(--text1); }
+
+    .input-hint {
+      font-size: 11px;
+      color: var(--text3);
+    }
+
+    .form-footer {
+      margin-top: 24px;
+      display: flex;
+      justify-content: flex-end;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .autofill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      cursor: pointer;
+      border: 1px solid rgba(201,168,84,0.2);
+      transition: all 200ms ease;
+    }
+    .autofill-badge:hover {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    /* ── SCORE RING ──────────────────────────────────────── */
+    .score-ring {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .score-ring svg { transform: rotate(-90deg); }
+    .score-ring-bg { fill: none; stroke: var(--surface3); stroke-width: 5; }
+    .score-ring-fill {
+      fill: none;
+      stroke-width: 5;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1.5s cubic-bezier(0.22,1,0.36,1);
+    }
+    .score-ring-inner { position: absolute; text-align: center; }
+    .score-number {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 42px;
+      font-weight: bold;
+      line-height: 1;
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text3);
+      font-weight: 600;
+    }
+
+    /* ── PEER MATCH SCREEN ───────────────────────────────── */
+    .peer-grid {
+      display: grid;
+      grid-template-columns: 1fr 20px 1fr;
+      gap: 0 16px;
+      margin-bottom: 16px;
+      align-items: start;
+    }
+    @media (max-width: 680px) {
+      .peer-grid { grid-template-columns: 1fr; }
+      .vs-divider { display: none; }
+    }
+
+    .vs-divider {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      align-self: stretch;
+      padding-top: 40px;
+    }
+    .vs-divider::before, .vs-divider::after {
+      content: '';
+      flex: 1;
+      width: 1px;
+      background: var(--border);
+    }
+    .vs-divider span {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--text3);
+      padding: 6px 0;
+    }
+
+    .peer-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .peer-card.yours { border-top: 3px solid var(--amber); }
+    .peer-card.peer  { border-top: 3px solid var(--green); }
+
+    .peer-card-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+      color: var(--text2);
+    }
+    .peer-card.yours .peer-card-label { color: var(--amber); }
+    .peer-card.peer  .peer-card-label { color: var(--green); }
+
+    .peer-building-name {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 21px;
+      font-weight: bold;
+      color: var(--text1);
+      margin-bottom: 4px;
+      line-height: 1.2;
+    }
+    .peer-university {
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 18px;
+      font-weight: 500;
+    }
+    .peer-score-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .score-tier-badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .badge-amber { background: rgba(212,144,58,0.12); color: var(--amber); border: 1px solid rgba(212,144,58,0.25); }
+    .badge-green { background: rgba(61,170,114,0.12); color: var(--green); border: 1px solid rgba(61,170,114,0.25); }
+    .badge-red   { background: rgba(224,96,96,0.12);  color: var(--red);   border: 1px solid rgba(224,96,96,0.25);  }
+    .badge-blue  { background: rgba(90,159,224,0.12); color: var(--blue);  border: 1px solid rgba(90,159,224,0.25); }
+
+    /* Factor bars */
+    .factor-row { margin-bottom: 12px; }
+    .factor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 5px;
+    }
+    .factor-name {
+      font-size: 12px;
+      color: var(--text2);
+      font-weight: 500;
+    }
+    .factor-score {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+    }
+    .factor-bar-bg {
+      height: 5px;
+      background: var(--surface3);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+    .factor-bar-fill {
+      height: 100%;
+      border-radius: 5px;
+      transition: width 1s ease;
+    }
+    .factor-source {
+      display: inline-flex;
+      align-items: center;
+      font-size: 10px;
+      color: var(--text2);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 7px;
+    }
+
+    /* Efficiency gap bar */
+    .efficiency-gap-bar {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 22px;
+      margin-bottom: 20px;
+    }
+    .gap-bar-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .gap-bar-label .gap-pts {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--amber);
+      font-weight: 700;
+    }
+    .gap-track {
+      height: 10px;
+      background: var(--surface3);
+      border-radius: 10px;
+      position: relative;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .gap-yours {
+      position: absolute; left: 0; height: 100%;
+      background: linear-gradient(90deg, #8a5a1a, var(--amber));
+      width: 44%;
+      border-radius: 10px 0 0 10px;
+    }
+    .gap-fill {
+      position: absolute; left: 44%; height: 100%;
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(212,144,58,0.18) 0px, rgba(212,144,58,0.18) 4px,
+        transparent 4px, transparent 8px
+      );
+      width: 35%;
+      border-right: 3px solid var(--green);
+    }
+    .gap-scale {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text3);
+    }
+    .gap-scale .gap-you  { color: var(--amber); font-weight: 700; }
+    .gap-scale .gap-peer { color: var(--green); font-weight: 700; }
+
+    /* Metrics table */
+    .metrics-table { width: 100%; border-collapse: collapse; }
+    .metrics-table th {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text2);
+      padding: 10px 14px;
+      background: var(--surface2);
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .metrics-table td {
+      padding: 12px 14px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      border-top: 1px solid var(--surface2);
+    }
+    .metrics-table td:first-child {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text1);
+      font-family: system-ui, sans-serif;
+    }
+    .metric-good    { color: var(--green); }
+    .metric-bad     { color: var(--red); }
+    .metric-neutral { color: var(--text2); }
+
+    /* Peer filters */
+    .filters-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filter-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(61,170,114,0.10);
+      color: var(--green);
+      border: 1px solid rgba(61,170,114,0.25);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── ENGINE CARDS (SCREEN 3) ─────────────────────────── */
+    .engines-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 800px) { .engines-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 420px) { .engines-grid { grid-template-columns: 1fr; } }
+
+    .engine-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    .engine-card:hover {
+      background: var(--surface2);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      border-color: var(--accent);
+    }
+    .engine-card.active {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+      box-shadow: 0 4px 20px rgba(201,168,84,0.2);
+    }
+    .engine-card.done { border-color: var(--green); background: rgba(61,170,114,0.05); }
+
+    .engine-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--accent-light);
+      border: 1px solid rgba(201,168,84,0.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 18px;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .engine-card-name {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 17px;
+      font-weight: bold;
+      color: var(--text1);
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+    .engine-card-desc {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+    .engine-done-check {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 10px;
+      color: var(--green);
+    }
+
+    .engine-result { display: none; animation: fadeIn .3s ease; margin-bottom: 20px; }
+    .engine-result.active { display: block; }
+
+    /* Grant cards */
+    .grant-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: box-shadow 200ms ease;
+    }
+    .grant-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+    .grant-amount-box {
+      background: rgba(61,170,114,0.10);
+      color: var(--green);
+      border: 1px solid rgba(61,170,114,0.25);
+      border-radius: 10px;
+      padding: 10px 14px;
+      text-align: center;
+      flex-shrink: 0;
+      min-width: 84px;
+    }
+    .grant-amount {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .grant-amount-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 2px;
+    }
+    .grant-name {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 17px;
+      font-weight: bold;
+      color: var(--text1);
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      line-height: 1.3;
+    }
+    .confidence-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--green);
+      border: 1px solid rgba(61,170,114,0.3);
+      background: rgba(61,170,114,0.10);
+      border-radius: 4px;
+      padding: 2px 7px;
+    }
+    .grant-agency {
+      font-size: 12px;
+      color: var(--text2);
+      margin-bottom: 6px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .grant-desc {
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 7px;
+      line-height: 1.6;
+    }
+    .grant-deadline {
+      font-size: 12px;
+      color: var(--amber);
+      font-weight: 600;
+    }
+    .grant-email-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--blue);
+      text-decoration: none;
+      margin-top: 5px;
+      transition: color 150ms ease;
+    }
+    .grant-email-link:hover { text-decoration: underline; }
+
+    /* Carbon stats */
+    .carbon-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 600px) { .carbon-stats { grid-template-columns: 1fr 1fr; } }
+    .carbon-stat {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+    }
+    .carbon-stat-value {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 30px;
+      font-weight: bold;
+      color: var(--green);
+      line-height: 1;
+    }
+    .carbon-stat-label {
+      font-size: 11px;
+      color: var(--text2);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 6px;
+    }
+
+    /* Contractor cards */
+    .contractor-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 14px;
+      transition: box-shadow 200ms ease;
+    }
+    .contractor-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+    .contractor-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .contractor-logo {
+      width: 44px;
+      height: 44px;
+      background: var(--surface3);
+      color: var(--accent);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      flex-shrink: 0;
+      font-weight: 700;
+    }
+    .contractor-name {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--text1);
+      line-height: 1.2;
+    }
+    .contractor-specialty {
+      font-size: 12px;
+      color: var(--text2);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .peer-project-box {
+      background: rgba(90,159,224,0.07);
+      border: 1px solid rgba(90,159,224,0.18);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+    .peer-project-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--blue);
+      margin-bottom: 5px;
+    }
+    .peer-project-detail {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+    .star-rating { font-family: 'Share Tech Mono', monospace; color: var(--accent); font-size: 14px; }
+    .contractor-meta { font-size: 12px; color: var(--text2); }
+
+    /* Simulator */
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+    .slider-label span {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text2);
+    }
+    .slider-value {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 34px;
+      font-weight: bold;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    input[type=range] {
+      width: 100%;
+      height: 6px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--pct, 87%), var(--surface3) var(--pct, 87%), var(--surface3) 100%);
+      border-radius: 6px;
+      outline: none;
+      border: none;
+      box-shadow: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(201,168,84,0.4);
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+    @media (max-width: 500px) { .sim-grid { grid-template-columns: 1fr; } }
+    .sim-stat {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .sim-stat-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text2);
+      margin-bottom: 8px;
+    }
+    .sim-stat-value {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 28px;
+      font-weight: bold;
+      line-height: 1;
+    }
+    .sim-fix-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      transition: all 150ms ease;
+    }
+    .sim-fix-row.included {
+      background: rgba(61,170,114,0.07);
+      border-color: rgba(61,170,114,0.25);
+    }
+    .sim-fix-row.excluded { opacity: .3; }
+    .sim-fix-check { font-family: 'Share Tech Mono', monospace; font-size: 14px; color: var(--green); }
+    .sim-fix-name { font-size: 13px; font-weight: 600; flex: 1; color: var(--text1); }
+    .sim-fix-cost { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--text2); }
+
+    .grant-coverage-box {
+      background: rgba(61,170,114,0.07);
+      border: 1px solid rgba(61,170,114,0.2);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .grant-coverage-box .icon { font-size: 16px; }
+    .grant-coverage-box h4 {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--green);
+      margin-bottom: 3px;
+    }
+    .grant-coverage-box p {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+
+    /* Roadmap CTA */
+    .roadmap-cta {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 32px;
+      text-align: center;
+      margin-top: 24px;
+      display: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .roadmap-cta.visible {
+      display: block;
+      animation: fadeIn .3s ease;
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+    .roadmap-cta h3 {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--text1);
+      margin-bottom: 8px;
+    }
+    .roadmap-cta p {
+      color: var(--text2);
+      font-size: 14px;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .engines-progress {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--text3);
+      text-align: center;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── ROADMAP SCREEN ──────────────────────────────────── */
+    .roadmap-totals {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 800px) { .roadmap-totals { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 420px) { .roadmap-totals { grid-template-columns: 1fr 1fr; } }
+    .total-card {
+      background: var(--surface2);
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .total-card-value {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 22px;
+      font-weight: bold;
+      line-height: 1.1;
+    }
+    .total-card-label {
+      font-size: 10px;
+      color: var(--text2);
+      font-weight: 700;
+      margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    /* Score trajectory */
+    .score-trajectory {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .trajectory-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text2);
+      margin-bottom: 14px;
+    }
+    .trajectory-chart {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      line-height: 1.5;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .trajectory-chart .dim { color: var(--text3); }
+
+    /* Timeline */
+    .timeline { position: relative; padding-left: 96px; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 84px;
+      top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, var(--accent) 0%, var(--border) 100%);
+      opacity: 0.4;
+    }
+    .timeline-phase { margin-bottom: 24px; }
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .phase-header::before {
+      content: '';
+      position: absolute;
+      left: -13px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(201,168,84,0.5);
+    }
+    .phase-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      border: 1px solid rgba(201,168,84,0.2);
+    }
+    .phase-weeks {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text3);
+    }
+    .timeline-step {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 10px;
+      position: relative;
+      transition: box-shadow 200ms ease;
+    }
+    .timeline-step:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+    .timeline-step::before {
+      content: '';
+      position: absolute;
+      left: -16px;
+      top: 18px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--surface3);
+      border: 2px solid var(--border);
+    }
+    .timeline-step.has-score::before {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 8px rgba(201,168,84,0.4);
+    }
+
+    .step-week {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--text3);
+      margin-bottom: 4px;
+      position: absolute;
+      left: -90px;
+      top: 18px;
+      width: 72px;
+      text-align: right;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .step-action {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--text1);
+      margin-bottom: 5px;
+      line-height: 1.3;
+    }
+    .step-desc {
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+    .step-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+    .step-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .tag-green { background: rgba(61,170,114,0.10); color: var(--green); border: 1px solid rgba(61,170,114,0.25); }
+    .tag-amber { background: rgba(212,144,58,0.10); color: var(--amber); border: 1px solid rgba(212,144,58,0.25); }
+    .tag-blue  { background: rgba(90,159,224,0.10); color: var(--blue);  border: 1px solid rgba(90,159,224,0.25); }
+    .tag-gray  { background: var(--surface3); color: var(--text2); border: 1px solid var(--border); }
+
+    /* Expansion */
+    .expansion-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 700px) { .expansion-grid { grid-template-columns: 1fr; } }
+    .expansion-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      transition: box-shadow 200ms ease;
+    }
+    .expansion-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+    .expansion-type {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 17px;
+      font-weight: bold;
+      color: var(--text1);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+    .expansion-scores { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .exp-score-box {
+      border-radius: 10px;
+      padding: 6px 12px;
+      text-align: center;
+      background: var(--surface3);
+      border: 1px solid var(--border);
+    }
+    .exp-score-val {
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .exp-score-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text2); margin-top: 2px; }
+    .exp-arrow { font-family: 'Share Tech Mono', monospace; font-size: 16px; color: var(--accent); }
+    .expansion-fix { font-size: 13px; color: var(--text2); margin-bottom: 7px; line-height: 1.5; }
+    .expansion-savings { font-family: 'Share Tech Mono', monospace; font-size: 13px; color: var(--green); font-weight: 700; }
+
+    /* Email template */
+    .email-template {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    }
+    .email-header {
+      background: var(--surface3);
+      color: var(--text2);
+      padding: 12px 18px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .email-subject {
+      padding: 14px 18px;
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--text1);
+      border-bottom: 1px solid var(--border);
+      line-height: 1.4;
+    }
+    .email-subject span { color: var(--text3); font-weight: normal; font-family: system-ui, sans-serif; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-right: 4px; }
+    .email-body {
+      padding: 20px 18px;
+      font-size: 13px;
+      color: var(--text2);
+      white-space: pre-line;
+      line-height: 1.8;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      cursor: pointer;
+      background: none;
+      border: 1px solid rgba(201,168,84,0.2);
+      padding: 5px 12px;
+      border-radius: 6px;
+      transition: all 150ms ease;
+      font-family: inherit;
+    }
+    .copy-btn:hover { background: var(--accent-glow); border-color: var(--accent); }
+
+    /* Loading */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(13,20,32,0.92);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      backdrop-filter: blur(4px);
+    }
+    .loading-overlay.active { display: flex; }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    .loading-text {
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--text2);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Misc */
+    .divider { height: 1px; background: var(--border); margin: 24px 0; }
+    .section-gap { margin-bottom: 28px; }
+    .alert {
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 13px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+    .alert-green { background: rgba(61,170,114,0.09); color: var(--green); border: 1px solid rgba(61,170,114,0.25); }
+    .alert-amber { background: rgba(212,144,58,0.09); color: var(--amber); border: 1px solid rgba(212,144,58,0.25); }
+
+    /* Clickable hover rule */
+    [onclick]:not(.btn) { cursor: pointer; }
+
+    @media (max-width: 600px) {
+      .logo-tagline { display: none; }
+      .progress-step span:not(.step-num) { display: none; }
+      .progress-connector { width: 16px; margin: 0 5px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">Scanning peer database…</div>
+</div>
+
+<!-- Header -->
+<header>
+  <div class="topbar-inner">
+    <a class="logo" href="#" onclick="return false;">
+      <span class="logo-text">VOLTZ</span>
+      <span class="logo-tagline">Energy Intelligence Platform</span>
+    </a>
+    <span class="topbar-system-tag">University Energy Intelligence</span>
+  </div>
+  <div class="step-bar">
+    <div class="step-bar-inner">
+      <nav class="progress-bar" id="progress-bar">
+        <div class="progress-step active" id="step-1">
+          <span class="step-num">1</span>
+          <span>Enter</span>
+        </div>
+        <div class="progress-connector" id="conn-1"></div>
+        <div class="progress-step" id="step-2">
+          <span class="step-num">2</span>
+          <span>Compare</span>
+        </div>
+        <div class="progress-connector" id="conn-2"></div>
+        <div class="progress-step" id="step-3">
+          <span class="step-num">3</span>
+          <span>Analyze</span>
+        </div>
+        <div class="progress-connector" id="conn-3"></div>
+        <div class="progress-step" id="step-4">
+          <span class="step-num">4</span>
+          <span>Roadmap</span>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ═══════════════════════════════════════════════
+       SCREEN 1 — ENTER BUILDING
+  ═══════════════════════════════════════════════ -->
+  <section class="screen active" id="screen-1">
+    <div class="form-hero">
+      <h1>Find Your Energy Twin</h1>
+      <p>Enter your building's details. VOLTZ finds your best-performing peer and tells you exactly how to close the gap.</p>
+    </div>
+    <div class="card" style="max-width:720px;margin:0 auto;">
+      <div style="margin-bottom:18px;">
+        <button class="autofill-badge" onclick="autofillMSU()">⚡ Autofill Midwest State Demo</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>University Name</label>
+          <input type="text" id="f-university" placeholder="e.g. Midwest State University" />
+        </div>
+        <div class="form-group">
+          <label>Building Name</label>
+          <input type="text" id="f-building" placeholder="e.g. Chemistry Building" />
+        </div>
+        <div class="form-group">
+          <label>Building Type</label>
+          <select id="f-type">
+            <option value="">Select type…</option>
+            <option>Chemistry Lab</option>
+            <option>Engineering Building</option>
+            <option>Dormitory</option>
+            <option>Office Building</option>
+            <option>Recreation Center</option>
+            <option>Library</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Climate Zone</label>
+          <select id="f-zone">
+            <option value="">Select zone…</option>
+            <option>Zone 1 (Very Hot)</option>
+            <option>Zone 2 (Hot)</option>
+            <option>Zone 3 (Warm)</option>
+            <option>Zone 4 (Mixed)</option>
+            <option>Zone 5 (Cool)</option>
+            <option>Zone 6 (Cold)</option>
+            <option>Zone 7 (Very Cold)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Year Built</label>
+          <input type="number" id="f-year" placeholder="e.g. 1978" min="1900" max="2024" />
+        </div>
+        <div class="form-group">
+          <label>Square Footage</label>
+          <input type="number" id="f-sqft" placeholder="e.g. 45000" />
+          <span class="input-hint">Gross square feet</span>
+        </div>
+        <div class="form-group">
+          <label>Annual Energy (kWh)</label>
+          <input type="number" id="f-kwh" placeholder="e.g. 4900000" />
+        </div>
+        <div class="form-group">
+          <label>Annual Energy Cost ($)</label>
+          <input type="number" id="f-cost" placeholder="e.g. 680000" />
+        </div>
+      </div>
+      <div class="form-footer">
+        <button class="btn btn-primary btn-lg" onclick="findPeerMatch()">
+          Find Peer Match &rarr;
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SCREEN 2 — PEER MATCH
+  ═══════════════════════════════════════════════ -->
+  <section class="screen" id="screen-2">
+    <div style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div class="section-title">Peer Match Found</div>
+          <div class="section-subtitle">VOLTZ matched your building to its highest-performing energy twin using 5 validated filters.</div>
+        </div>
+        <button class="btn btn-outline" onclick="goToScreen(1)">← Back</button>
+      </div>
+    </div>
+
+    <!-- Score comparison -->
+    <div class="peer-grid section-gap">
+      <!-- Your building -->
+      <div class="peer-card yours">
+        <div class="peer-card-label">Your Building</div>
+        <div class="peer-building-name" id="s2-your-building">Chemistry Building</div>
+        <div class="peer-university" id="s2-your-uni">Midwest State University</div>
+        <div class="peer-score-row">
+          <div class="score-ring" id="score-ring-yours">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <circle class="score-ring-bg" cx="50" cy="50" r="42"/>
+              <circle class="score-ring-fill" id="fill-yours" cx="50" cy="50" r="42"
+                stroke="#C97B2A"
+                stroke-dasharray="263.9"
+                stroke-dashoffset="263.9"/>
+            </svg>
+            <div class="score-ring-inner">
+              <div class="score-number" id="num-yours" style="color:#C97B2A">0</div>
+              <div class="score-label">/ 100</div>
+            </div>
+          </div>
+          <div>
+            <div class="score-tier-badge badge-amber" id="tier-yours">Needs Improvement</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text3);margin-top:6px;" id="meta-yours">Zone 5 · 1978 · 45,000 sqft</div>
+          </div>
+        </div>
+        <div id="factors-yours"></div>
+      </div>
+
+      <!-- VS divider -->
+      <div class="vs-divider"><span>VS</span></div>
+
+      <!-- Peer building -->
+      <div class="peer-card peer">
+        <div class="peer-card-label">Best Peer — 5/5 Filters Matched</div>
+        <div class="peer-building-name" id="s2-peer-building">Noyes Chemistry Laboratory</div>
+        <div class="peer-university" id="s2-peer-uni">University of Illinois</div>
+        <div class="peer-score-row">
+          <div class="score-ring">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <circle class="score-ring-bg" cx="50" cy="50" r="42"/>
+              <circle class="score-ring-fill" id="fill-peer" cx="50" cy="50" r="42"
+                stroke="#4B9E6B"
+                stroke-dasharray="263.9"
+                stroke-dashoffset="263.9"/>
+            </svg>
+            <div class="score-ring-inner">
+              <div class="score-number" id="num-peer" style="color:#4B9E6B">0</div>
+              <div class="score-label">/ 100</div>
+            </div>
+          </div>
+          <div>
+            <div class="score-tier-badge badge-green">High Performer</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text3);margin-top:6px;">Zone 5 · 1992 · 51,000 sqft</div>
+          </div>
+        </div>
+        <div id="factors-peer"></div>
+      </div>
+    </div>
+
+    <!-- Efficiency gap bar -->
+    <div class="efficiency-gap-bar">
+      <div class="gap-bar-label">
+        <span>Efficiency Gap — Your Position on 0–100 Scale</span>
+        <span class="gap-pts">35 PT GAP TO CLOSE</span>
+      </div>
+      <div class="gap-track">
+        <div class="gap-yours"></div>
+        <div class="gap-fill"></div>
+      </div>
+      <div class="gap-scale">
+        <span>0</span>
+        <span class="gap-you">44 (YOU)</span>
+        <span class="gap-peer">79 (PEER)</span>
+        <span>100</span>
+      </div>
+    </div>
+
+    <!-- Peer filters passed -->
+    <div class="card section-gap" style="padding:18px 22px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text1);">5/5 Peer Filters Passed</div>
+        <div class="score-tier-badge badge-green">Perfect Match</div>
+      </div>
+      <div class="filters-grid" id="peer-filters"></div>
+    </div>
+
+    <!-- Metrics comparison -->
+    <div class="card section-gap">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:14px;color:var(--text1);">Key Metrics — Your Building vs Peer</div>
+      <div style="overflow-x:auto;">
+        <table class="metrics-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Your Building</th>
+              <th>Peer (UI)</th>
+              <th>Gap</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Energy Intensity</strong><br><span style="font-size:11px;color:var(--text3);">kWh/sqft/yr</span></td>
+              <td class="metric-bad">108.9</td>
+              <td class="metric-good">60.8</td>
+              <td class="metric-bad">−48.1</td>
+              <td><span style="color:var(--red);font-family:'Share Tech Mono',monospace;font-size:12px;">CRIT</span></td>
+            </tr>
+            <tr>
+              <td><strong>Annual Cost</strong><br><span style="font-size:11px;color:var(--text3);">$/sqft/yr</span></td>
+              <td class="metric-bad">$15.11</td>
+              <td class="metric-good">$8.43</td>
+              <td class="metric-bad">−$6.68</td>
+              <td><span style="color:var(--red);font-family:'Share Tech Mono',monospace;font-size:12px;">CRIT</span></td>
+            </tr>
+            <tr>
+              <td><strong>Carbon Intensity</strong><br><span style="font-size:11px;color:var(--text3);">kg CO₂/sqft/yr</span></td>
+              <td class="metric-bad">12.8</td>
+              <td class="metric-good">6.8</td>
+              <td class="metric-bad">−6.0</td>
+              <td><span style="color:var(--red);font-family:'Share Tech Mono',monospace;font-size:12px;">CRIT</span></td>
+            </tr>
+            <tr>
+              <td><strong>VOLTZ Score</strong><br><span style="font-size:11px;color:var(--text3);">Composite 0–100</span></td>
+              <td class="metric-bad">44 / 100</td>
+              <td class="metric-good">79 / 100</td>
+              <td class="metric-bad">−35 pts</td>
+              <td><span style="color:var(--red);font-family:'Share Tech Mono',monospace;font-size:12px;">CRIT</span></td>
+            </tr>
+            <tr>
+              <td><strong>Potential Annual Savings</strong><br><span style="font-size:11px;color:var(--text3);">if peer parity achieved</span></td>
+              <td colspan="2" class="metric-good" style="text-align:center;font-size:16px;">$585,000 / year</td>
+              <td></td>
+              <td><span style="color:var(--green);font-family:'Share Tech Mono',monospace;font-size:12px;">TARGET</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div style="text-align:center;padding:8px 0;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text3);margin-bottom:14px;letter-spacing:.08em;text-transform:uppercase;">3 fixes identified · $660K in grants available · 26-week roadmap ready</div>
+      <button class="btn btn-green btn-lg" onclick="goToScreen(3)">
+        Run All Engines &rarr;
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SCREEN 3 — FOUR ENGINES
+  ═══════════════════════════════════════════════ -->
+  <section class="screen" id="screen-3">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+      <div>
+        <div class="section-title">Intelligence Engines</div>
+        <div class="section-subtitle">Click each engine to explore funding, revenue, and implementation options.</div>
+      </div>
+      <button class="btn btn-outline" onclick="goToScreen(2)">← Back</button>
+    </div>
+
+    <!-- Engine cards -->
+    <div class="engines-grid">
+      <div class="engine-card" id="eng-card-grants" onclick="openEngine('grants')">
+        <div class="engine-icon">G</div>
+        <div class="engine-card-name">Grant Finder</div>
+        <div class="engine-card-desc">Find matching federal &amp; state funding</div>
+        <div class="engine-done-check" id="eng-done-grants"></div>
+      </div>
+      <div class="engine-card" id="eng-card-carbon" onclick="openEngine('carbon')">
+        <div class="engine-icon">C</div>
+        <div class="engine-card-name">Carbon Credits</div>
+        <div class="engine-card-desc">Project annual carbon revenue</div>
+        <div class="engine-done-check" id="eng-done-carbon"></div>
+      </div>
+      <div class="engine-card" id="eng-card-contractors" onclick="openEngine('contractors')">
+        <div class="engine-icon">M</div>
+        <div class="engine-card-name">Contractor Match</div>
+        <div class="engine-card-desc">Vetted contractors from peer project</div>
+        <div class="engine-done-check" id="eng-done-contractors"></div>
+      </div>
+      <div class="engine-card" id="eng-card-simulator" onclick="openEngine('simulator')">
+        <div class="engine-icon">S</div>
+        <div class="engine-card-name">Simulation Engine</div>
+        <div class="engine-card-desc">Model budget vs. savings live</div>
+        <div class="engine-done-check" id="eng-done-simulator"></div>
+      </div>
+    </div>
+
+    <div class="engines-progress" id="engines-progress">Click any engine above to begin</div>
+
+    <!-- ENGINE RESULTS -->
+
+    <!-- GRANT FINDER -->
+    <div class="engine-result" id="result-grants">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
+          <div>
+            <div class="section-title" style="font-size:18px;">Grant Finder Results</div>
+            <div class="section-subtitle" style="margin-bottom:0;">3 grants matched · <span style="font-family:'Share Tech Mono',monospace;color:var(--green);">$660,000 total available</span></div>
+          </div>
+          <div class="score-tier-badge badge-green" style="font-size:12px;padding:6px 14px;font-family:'Share Tech Mono',monospace;">$660K FOUND</div>
+        </div>
+
+        <div class="grant-card">
+          <div class="grant-amount-box">
+            <div class="grant-amount">$285K</div>
+            <div class="grant-amount-label">Available</div>
+          </div>
+          <div>
+            <div class="grant-name">DOE Weatherization Assistance Program <span class="confidence-tag">94% MATCH</span></div>
+            <div class="grant-agency">U.S. Department of Energy</div>
+            <div class="grant-desc">Federal funding for HVAC systems, insulation, and controls for institutions in cold climate zones (Zone 4–7). Covers off-hours setback and DCV retrofit.</div>
+            <div class="grant-deadline">Rolling applications — next cycle opens Q2 2026</div>
+            <a class="grant-email-link" href="mailto:doe.wap@hq.doe.gov">doe.wap@hq.doe.gov</a>
+          </div>
+        </div>
+
+        <div class="grant-card">
+          <div class="grant-amount-box">
+            <div class="grant-amount">$225K</div>
+            <div class="grant-amount-label">Available</div>
+          </div>
+          <div>
+            <div class="grant-name">IRA Section 179D Energy Efficiency Deduction <span class="confidence-tag">99% MATCH</span></div>
+            <div class="grant-agency">Internal Revenue Service</div>
+            <div class="grant-desc">Up to $5/sqft tax deduction for qualifying HVAC, lighting, and envelope improvements. Universities can transfer deduction to contractors for immediate cash value.</div>
+            <div class="grant-deadline">Annual tax filing — no pre-application required</div>
+            <a class="grant-email-link" href="mailto:irs.179d@irs.gov">irs.179d@irs.gov</a>
+          </div>
+        </div>
+
+        <div class="grant-card">
+          <div class="grant-amount-box">
+            <div class="grant-amount">$150K</div>
+            <div class="grant-amount-label">Available</div>
+          </div>
+          <div>
+            <div class="grant-name">Indiana Office of Energy Development Grant <span class="confidence-tag">78% MATCH</span></div>
+            <div class="grant-agency">Indiana OED — State Energy Program</div>
+            <div class="grant-desc">State grant for energy efficiency at Indiana universities and public institutions. Priority for HVAC optimization and demand response projects in Zone 5.</div>
+            <div class="grant-deadline">Next cycle: June 1, 2026 — applications open March 15</div>
+            <a class="grant-email-link" href="mailto:energy@oed.in.gov">energy@oed.in.gov</a>
+          </div>
+        </div>
+
+        <div class="alert alert-green">
+          <span>&#10003;</span>
+          <span><strong>$660,000 in grants exceeds your $523,000 total project cost.</strong> After grants, net investment is $0 — with a $137,000 surplus.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARBON CREDITS -->
+    <div class="engine-result" id="result-carbon">
+      <div class="card">
+        <div style="margin-bottom:18px;">
+          <div class="section-title" style="font-size:18px;">Carbon Credit Projection</div>
+          <div class="section-subtitle" style="margin-bottom:0;">Based on EPA eGRID 2023 MROW grid factor (0.350 kg CO₂/kWh)</div>
+        </div>
+
+        <div class="carbon-stats">
+          <div class="carbon-stat">
+            <div class="carbon-stat-value">1,715</div>
+            <div class="carbon-stat-label">Tonnes CO₂/yr reduced</div>
+          </div>
+          <div class="carbon-stat">
+            <div class="carbon-stat-value">$22</div>
+            <div class="carbon-stat-label">Price per tonne (VCM 2024)</div>
+          </div>
+          <div class="carbon-stat">
+            <div class="carbon-stat-value" style="color:var(--green);">$37,730</div>
+            <div class="carbon-stat-label">Annual credit revenue</div>
+          </div>
+          <div class="carbon-stat">
+            <div class="carbon-stat-value" style="color:var(--blue);">$188,650</div>
+            <div class="carbon-stat-label">5-year revenue</div>
+          </div>
+          <div class="carbon-stat">
+            <div class="carbon-stat-value">373</div>
+            <div class="carbon-stat-label">Cars off road equivalent</div>
+          </div>
+          <div class="carbon-stat">
+            <div class="carbon-stat-value">1,885</div>
+            <div class="carbon-stat-label">Acres of forest equivalent</div>
+          </div>
+        </div>
+
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);margin-bottom:10px;">Monetization Pathway</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+          <div style="text-align:center;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:2px;">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--accent);margin-bottom:4px;">01</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text1);margin-bottom:2px;">Baseline Audit</div>
+            <div style="font-family:'Barlow',sans-serif;font-size:11px;color:var(--text2);">Wk 1–2</div>
+          </div>
+          <div style="text-align:center;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:2px;">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--accent);margin-bottom:4px;">02</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text1);margin-bottom:2px;">Gold Standard Registry</div>
+            <div style="font-family:'Barlow',sans-serif;font-size:11px;color:var(--text2);">Wk 3–6</div>
+          </div>
+          <div style="text-align:center;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:2px;">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--accent);margin-bottom:4px;">03</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text1);margin-bottom:2px;">ISO 14064-3 Verification</div>
+            <div style="font-family:'Barlow',sans-serif;font-size:11px;color:var(--text2);">Mo 6–12</div>
+          </div>
+          <div style="text-align:center;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:2px;">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--accent);margin-bottom:4px;">04</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text1);margin-bottom:2px;">Credits Issued &amp; Sold</div>
+            <div style="font-family:'Barlow',sans-serif;font-size:11px;color:var(--text2);">Mo 12–15</div>
+          </div>
+        </div>
+
+        <div class="alert alert-green">
+          <span>&#8635;</span>
+          <span>Carbon credits add <strong>$37,730/yr</strong> on top of $585,000 in energy savings — bringing total annual benefit to <strong>$622,730/year</strong>.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTRACTOR MARKETPLACE -->
+    <div class="engine-result" id="result-contractors">
+      <div class="card">
+        <div style="margin-bottom:18px;">
+          <div class="section-title" style="font-size:18px;">Contractor Marketplace</div>
+          <div class="section-subtitle" style="margin-bottom:0;">These 3 contractors completed the exact same fixes at the University of Illinois peer building.</div>
+        </div>
+
+        <div class="contractor-card">
+          <div class="contractor-header">
+            <div class="contractor-logo">SI</div>
+            <div>
+              <div class="contractor-name">Siemens Smart Infrastructure</div>
+              <div class="contractor-specialty">Building Automation &amp; Controls</div>
+            </div>
+            <div style="margin-left:auto;text-align:right;">
+              <div class="star-rating">★★★★★</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text3);">4.8 · 127 reviews</div>
+            </div>
+          </div>
+          <div class="peer-project-box">
+            <div class="peer-project-title">Completed at University of Illinois (2021)</div>
+            <div class="peer-project-detail">Installed off-hours setback controls + smart lab scheduling system at Noyes Chemistry Lab — reduced energy 28%, saved $185,000/yr</div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+            <span class="step-tag tag-amber">Off-hours Setback — $8,000</span>
+            <span class="step-tag tag-amber">Smart Lab Scheduling — $95,000</span>
+          </div>
+          <div class="contractor-meta">
+            <a href="https://siemens.com/us/en/products/buildings" target="_blank" style="color:var(--blue);">siemens.com/us/en/products/buildings</a>
+            &nbsp;·&nbsp;
+            <a href="mailto:us.smartinfrastructure@siemens.com" style="color:var(--blue);">us.smartinfrastructure@siemens.com</a>
+          </div>
+        </div>
+
+        <div class="contractor-card">
+          <div class="contractor-header">
+            <div class="contractor-logo">LC</div>
+            <div>
+              <div class="contractor-name">Limbach Company</div>
+              <div class="contractor-specialty">Mechanical &amp; HVAC Systems</div>
+            </div>
+            <div style="margin-left:auto;text-align:right;">
+              <div class="star-rating">★★★★★</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text3);">4.9 · 203 reviews</div>
+            </div>
+          </div>
+          <div class="peer-project-box">
+            <div class="peer-project-title">Completed at University of Illinois (2022)</div>
+            <div class="peer-project-detail">DCV HVAC retrofit + lab exhaust optimization at Noyes Chemistry Lab — reduced HVAC energy 41%, saved $265,000/yr</div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+            <span class="step-tag tag-blue">DCV HVAC Retrofit — $420,000</span>
+          </div>
+          <div class="contractor-meta">
+            <a href="https://limbach.com" target="_blank" style="color:var(--blue);">limbach.com</a>
+            &nbsp;·&nbsp;
+            <a href="mailto:info@limbach.com" style="color:var(--blue);">info@limbach.com</a>
+          </div>
+        </div>
+
+        <div class="contractor-card">
+          <div class="contractor-header">
+            <div class="contractor-logo">TT</div>
+            <div>
+              <div class="contractor-name">Trane Technologies</div>
+              <div class="contractor-specialty">Sustainability &amp; Climate Control</div>
+            </div>
+            <div style="margin-left:auto;text-align:right;">
+              <div class="star-rating">★★★★★</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text3);">4.7 · 89 reviews</div>
+            </div>
+          </div>
+          <div class="peer-project-box">
+            <div class="peer-project-title">Completed at Purdue University (2023)</div>
+            <div class="peer-project-detail">Chilled water plant optimization + VFDs at Lilly Hall of Life Sciences — campus energy intensity reduced 18%, saves $420,000/yr</div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+            <span class="step-tag tag-green">Carbon M&amp;V · Ongoing monitoring</span>
+          </div>
+          <div class="contractor-meta">
+            <a href="https://tranetechnologies.com" target="_blank" style="color:var(--blue);">tranetechnologies.com</a>
+            &nbsp;·&nbsp;
+            <a href="mailto:sustainability@tranetechnologies.com" style="color:var(--blue);">sustainability@tranetechnologies.com</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIMULATION ENGINE -->
+    <div class="engine-result" id="result-simulator">
+      <div class="card">
+        <div style="margin-bottom:18px;">
+          <div class="section-title" style="font-size:18px;">Budget Simulation Engine</div>
+          <div class="section-subtitle" style="margin-bottom:0;">Drag the slider to see which fixes are included and how score, savings, and payback change in real time.</div>
+        </div>
+
+        <div class="simulator-wrap">
+          <div class="slider-label">
+            <span>Investment Budget</span>
+            <span class="slider-value" id="sim-budget-display">$523,000</span>
+          </div>
+          <input type="range" id="budget-slider"
+            min="0" max="600000" step="1000" value="523000"
+            oninput="updateSimulator(this.value)" />
+          <div style="display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);margin-top:6px;">
+            <span>$0</span><span>$150K</span><span>$300K</span><span>$450K</span><span>$600K</span>
+          </div>
+
+          <div style="margin:16px 0 12px;">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);margin-bottom:8px;">Included Fixes</div>
+            <div id="sim-fix-list"></div>
+          </div>
+
+          <div class="sim-grid">
+            <div class="sim-stat">
+              <div class="sim-stat-label">New VOLTZ Score</div>
+              <div class="sim-stat-value" id="sim-score" style="color:var(--amber);">44</div>
+              <div style="font-family:'Barlow',sans-serif;font-size:12px;color:var(--text2);" id="sim-score-sub">No change</div>
+            </div>
+            <div class="sim-stat">
+              <div class="sim-stat-label">Annual Savings</div>
+              <div class="sim-stat-value" id="sim-savings" style="color:var(--green);">$0</div>
+              <div style="font-family:'Barlow',sans-serif;font-size:12px;color:var(--text2);">energy cost reduction / yr</div>
+            </div>
+            <div class="sim-stat">
+              <div class="sim-stat-label">Simple Payback</div>
+              <div class="sim-stat-value" id="sim-payback" style="color:var(--blue);">—</div>
+              <div style="font-family:'Barlow',sans-serif;font-size:12px;color:var(--text2);">years to break even</div>
+            </div>
+            <div class="sim-stat">
+              <div class="sim-stat-label">Total Investment</div>
+              <div class="sim-stat-value" id="sim-total-cost" style="color:var(--text1);">$0</div>
+              <div style="font-family:'Barlow',sans-serif;font-size:12px;color:var(--text2);">cost of selected fixes</div>
+            </div>
+          </div>
+
+          <div class="grant-coverage-box" id="sim-grant-box">
+            <div class="icon">&#10003;</div>
+            <div>
+              <h4 id="sim-grant-title">Grants cover full investment</h4>
+              <p id="sim-grant-desc">$660,000 in available grants exceeds $523,000 project cost — $137,000 surplus remaining.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Roadmap CTA -->
+    <div class="roadmap-cta" id="roadmap-cta">
+      <h3>Your full 26-week roadmap is ready</h3>
+      <p>Week-by-week implementation plan with contractors assigned, grants allocated, and carbon credits scheduled.</p>
+      <button class="btn btn-primary btn-lg" onclick="goToScreen(4)">
+        See Full Roadmap &rarr;
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SCREEN 4 — FULL ROADMAP
+  ═══════════════════════════════════════════════ -->
+  <section class="screen" id="screen-4">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+      <div>
+        <div class="section-title">Full Implementation Roadmap</div>
+        <div class="section-subtitle">Midwest State University Chemistry Building — 26-week plan to reach VOLTZ score 79/100</div>
+      </div>
+      <button class="btn btn-outline" onclick="goToScreen(3)">← Back</button>
+    </div>
+
+    <!-- Totals -->
+    <div class="roadmap-totals section-gap">
+      <div class="total-card">
+        <div class="total-card-value" style="color:var(--green);">$660K</div>
+        <div class="total-card-label">Grants Secured</div>
+      </div>
+      <div class="total-card">
+        <div class="total-card-value" style="color:var(--green);">$585K/yr</div>
+        <div class="total-card-label">Annual Savings</div>
+      </div>
+      <div class="total-card">
+        <div class="total-card-value" style="color:var(--blue);">0.84 yrs</div>
+        <div class="total-card-label">Payback Period</div>
+      </div>
+      <div class="total-card">
+        <div class="total-card-value" style="color:var(--amber);">44 → 79</div>
+        <div class="total-card-label">Score Jump (+35 pts)</div>
+      </div>
+      <div class="total-card">
+        <div class="total-card-value" style="color:var(--text1);">$0</div>
+        <div class="total-card-label">Net Cost (after grants)</div>
+      </div>
+      <div class="total-card">
+        <div class="total-card-value" style="color:var(--green);">$37.7K/yr</div>
+        <div class="total-card-label">Carbon Revenue</div>
+      </div>
+      <div class="total-card">
+        <div class="total-card-value" style="color:var(--red);">1,715 t</div>
+        <div class="total-card-label">CO₂ Reduced/yr</div>
+      </div>
+      <div class="total-card">
+        <div class="total-card-value" style="color:var(--text1);">26 wks</div>
+        <div class="total-card-label">Timeline</div>
+      </div>
+    </div>
+
+    <!-- Score trajectory -->
+    <div class="score-trajectory">
+      <div class="trajectory-label">Projected Score Trajectory — Midwest State Chemistry Building</div>
+      <div class="trajectory-chart"><span class="dim"> 79 │                                          ┌──────── PEER PARITY
+    │                                          │
+ 61 │                            ┌─────────────┘
+    │                            │
+ 51 │              ┌─────────────┘
+    │              │
+ 44 ├──────────────┘
+    └──────────────────────────────────────────────────
+      WK 1        WK 8         WK 16          WK 26</span>
+<span>        BASELINE    +SETBACK     +SCHED         +DCV
+        SCORE 44    SCORE 51     SCORE 61       SCORE 79</span></div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="card section-gap">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text1);margin-bottom:20px;">Week-by-Week Implementation Plan</div>
+      <div class="timeline" id="roadmap-timeline"></div>
+    </div>
+
+    <!-- Expansion -->
+    <div class="section-gap">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text1);margin-bottom:6px;">Campus Expansion Opportunities</div>
+      <div style="font-family:'Barlow',sans-serif;font-size:13px;color:var(--text2);margin-bottom:16px;">3 other Midwest State building types with the highest improvement potential — ordered by ROI</div>
+      <div class="expansion-grid" id="expansion-grid"></div>
+    </div>
+
+    <!-- Email templates -->
+    <div class="section-gap">
+      <div style="font-family:'Times New Roman',Times,Georgia,serif;font-size:24px;font-weight:bold;color:var(--text1);margin-bottom:6px;">Peer Institution Outreach</div>
+      <div style="font-size:14px;color:var(--text2);margin-bottom:16px;line-height:1.6;">Ready-to-send letter from your facilities team to counterparts at peer universities — collegial, technical, peer-to-peer.</div>
+      <div class="email-template">
+        <div class="email-header">
+          <span>From: VP Facilities, Midwest State University — To: Peer Institutions</span>
+          <button class="copy-btn" onclick="copyEmail()">Copy Email</button>
+        </div>
+        <div class="email-subject">
+          <span>Subject: </span>Research building energy benchmarking — sharing our results from the VOLTZ pilot
+        </div>
+        <div class="email-body" id="email-body-1">Dear [Name],
+
+I'm writing as [VP/Director of Facilities] at Midwest State University to share the results of a building energy intelligence initiative we recently completed, and to offer our full methodology to your team if it would be useful.
+
+Our Chemistry Building — 45,000 sq ft, constructed 1978, ASHRAE Climate Zone 5 — was operating at 108.9 kBtu/sq ft/yr, approximately 79% above the ENERGY STAR median for university research laboratory facilities. After running a peer benchmarking analysis, we identified the University of Illinois Noyes Chemistry Laboratory as our highest-performing comparable building (51,000 sq ft, 1992 construction, same zone and use classification) operating at 60.8 kBtu/sq ft — a 44% energy intensity gap we had not previously quantified against a validated peer.
+
+Three interventions account for the full performance gap, with a combined $585,000/yr in projected annual savings:
+
+  • Off-hours HVAC setback controls — $8,000 capital, $95,000/yr savings, 1-month payback
+  • Smart lab scheduling with occupancy sensors across 24 lab spaces — $95,000, $180,000/yr savings
+  • Demand-controlled ventilation retrofit (CO₂ sensors, VAV air handlers) — $420,000, $310,000/yr savings
+
+On funding: DOE Weatherization Assistance ($285K), IRA Section 179D ($225K), and Indiana OED ($150K) combine to $660,000 — exceeding our $523,000 total project cost with a $137,000 surplus reallocated to Phase 2 buildings. Net capital outlay: $0.
+
+We are currently in Week 18 of a 26-week implementation with Siemens Smart Infrastructure and Limbach Company, both of whom had prior project experience at the Illinois peer building. ASHRAE Level III M&V is scheduled for Week 25, with preliminary data available shortly after.
+
+I'm happy to share our grant application packages, contractor RFP templates, and VOLTZ scoring methodology documentation with your facilities team — no strings attached. If your institution is working through similar questions on research building performance, a 20-minute call would be worth the time.
+
+Warmly,
+[Name]
+[Title], Facilities & Energy Management
+Midwest State University</div>
+      </div>
+    </div>
+
+    <!-- Start new building -->
+    <div style="text-align:center;padding:24px 0 8px;">
+      <button class="btn btn-navy btn-lg" onclick="startNew()">
+        ⚡ Start New Building
+      </button>
+    </div>
+  </section>
+
+</main>
+
+<!-- Scripts -->
+<script src="data/buildings.js"></script>
+<script src="scoring/score.js"></script>
+<script src="matching/match.js"></script>
+<script src="engines/grants.js"></script>
+<script src="engines/carbon.js"></script>
+<script src="engines/contractors.js"></script>
+<script src="engines/simulator.js"></script>
+<script src="roadmap/roadmap.js"></script>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+const state = {
+  currentScreen: 1,
+  enginesCompleted: new Set(),
+  activeEngine: null
+};
+
+// ─── Navigation ──────────────────────────────────────────────────────────────
+function goToScreen(n) {
+  if (n === state.currentScreen) return;
+
+  // Animate out
+  document.getElementById('screen-' + state.currentScreen).classList.remove('active');
+
+  state.currentScreen = n;
+
+  // Animate in
+  const next = document.getElementById('screen-' + n);
+  next.classList.add('active');
+
+  // Update progress bar
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById('step-' + i);
+    const conn = document.getElementById('conn-' + i);
+    el.classList.remove('active', 'done');
+    if (conn) conn.classList.remove('done');
+    if (i < n) { el.classList.add('done'); if (conn) conn.classList.add('done'); }
+    if (i === n) el.classList.add('active');
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Trigger animations for screen 2
+  if (n === 2) {
+    setTimeout(() => {
+      animateScore('fill-yours', 'num-yours', 44, '#d97706');
+      animateScore('fill-peer', 'num-peer', 79, '#16a34a');
+    }, 200);
+  }
+
+  // Build roadmap when entering screen 4
+  if (n === 4) {
+    buildRoadmap();
+  }
+}
+
+// ─── Score ring animation ─────────────────────────────────────────────────────
+function animateScore(fillId, numId, target, color) {
+  const fill = document.getElementById(fillId);
+  const num = document.getElementById(numId);
+  const circumference = 2 * Math.PI * 42; // r=42
+  const duration = 1400;
+  const start = Date.now();
+
+  fill.style.stroke = color;
+  num.style.color = color;
+
+  function tick() {
+    const elapsed = Date.now() - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(target * eased);
+    const offset = circumference - (current / 100) * circumference;
+    fill.style.strokeDashoffset = offset;
+    num.textContent = current;
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// ─── Factor bars ──────────────────────────────────────────────────────────────
+function buildFactorBars(containerId, factors) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = factors.map(f => {
+    const color = f.score >= 71 ? 'var(--green)' : f.score >= 41 ? 'var(--amber)' : 'var(--red)';
+    return `
+      <div class="factor-row">
+        <div class="factor-header">
+          <span class="factor-name">${f.label}</span>
+          <span class="factor-score" style="color:${color}">${f.score}/100</span>
+        </div>
+        <div class="factor-bar-bg">
+          <div class="factor-bar-fill" style="width:0%;background:${color}" data-target="${f.score}"></div>
+        </div>
+        <div class="factor-source">Source: ${f.source}</div>
+      </div>`;
+  }).join('');
+
+  // Animate bars after a short delay
+  setTimeout(() => {
+    container.querySelectorAll('.factor-bar-fill').forEach(bar => {
+      bar.style.width = bar.dataset.target + '%';
+    });
+  }, 300);
+}
+
+// ─── Peer filters ─────────────────────────────────────────────────────────────
+function buildPeerFilters(filters) {
+  const container = document.getElementById('peer-filters');
+  if (!container) return;
+  container.innerHTML = filters.map(f => `
+    <div class="filter-badge">
+      <span>✓</span>
+      <span>${f.label}: ${f.match}</span>
+    </div>
+  `).join('');
+}
+
+// ─── SCREEN 1 — Autofill & Submit ─────────────────────────────────────────────
+function autofillMSU() {
+  document.getElementById('f-university').value = 'Midwest State University';
+  document.getElementById('f-building').value = 'Chemistry Building';
+  document.getElementById('f-type').value = 'Chemistry Lab';
+  document.getElementById('f-zone').value = 'Zone 5 (Cool)';
+  document.getElementById('f-year').value = '1978';
+  document.getElementById('f-sqft').value = '45000';
+  document.getElementById('f-kwh').value = '4900000';
+  document.getElementById('f-cost').value = '680000';
+}
+
+function findPeerMatch() {
+  const university = document.getElementById('f-university').value.trim();
+  const building = document.getElementById('f-building').value.trim();
+
+  if (!university || !building) {
+    alert('Please enter at least a university name and building name.');
+    return;
+  }
+
+  showLoading('Scanning 14,000+ university buildings…');
+
+  const steps = [
+    { delay: 600, text: 'Applying 5-filter peer matching algorithm…' },
+    { delay: 1400, text: 'Calculating VOLTZ score across 5 factors…' },
+    { delay: 2200, text: 'Identifying highest-performing peer…' },
+  ];
+
+  steps.forEach(s => setTimeout(() => { document.getElementById('loading-text').textContent = s.text; }, s.delay));
+
+  setTimeout(() => {
+    hideLoading();
+
+    // Populate screen 2 with MSU data
+    const msu = window.VOLTZ.buildings.msuChemistry;
+    const peer = window.VOLTZ.buildings.uiChemistry;
+
+    document.getElementById('s2-your-building').textContent = building || msu.building;
+    document.getElementById('s2-your-uni').textContent = university || msu.university;
+    document.getElementById('s2-peer-building').textContent = peer.building;
+    document.getElementById('s2-peer-uni').textContent = peer.university;
+    document.getElementById('meta-yours').textContent = `Zone 5 · ${document.getElementById('f-year').value || msu.yearBuilt} · ${Number(document.getElementById('f-sqft').value || msu.sqft).toLocaleString()} sqft`;
+
+    buildFactorBars('factors-yours', msu.factors);
+    buildFactorBars('factors-peer', peer.factors);
+    buildPeerFilters(peer.peerFilters);
+
+    goToScreen(2);
+  }, 3000);
+}
+
+// ─── Loading overlay ──────────────────────────────────────────────────────────
+function showLoading(text) {
+  document.getElementById('loading-text').textContent = text;
+  document.getElementById('loading').classList.add('active');
+}
+function hideLoading() {
+  document.getElementById('loading').classList.remove('active');
+}
+
+// ─── SCREEN 3 — Engines ───────────────────────────────────────────────────────
+const engineLabels = {
+  grants: 'Grant Finder',
+  carbon: 'Carbon Credits',
+  contractors: 'Contractor Match',
+  simulator: 'Simulation Engine'
+};
+
+function openEngine(name) {
+  // Mark previously active card as inactive
+  if (state.activeEngine) {
+    document.getElementById('eng-card-' + state.activeEngine).classList.remove('active');
+    document.getElementById('result-' + state.activeEngine).classList.remove('active');
+  }
+
+  state.activeEngine = name;
+  state.enginesCompleted.add(name);
+
+  // Activate card
+  const card = document.getElementById('eng-card-' + name);
+  card.classList.add('active', 'done');
+  document.getElementById('eng-done-' + name).textContent = '✅';
+
+  // Show result
+  document.getElementById('result-' + name).classList.add('active');
+
+  // Scroll to results
+  setTimeout(() => {
+    document.getElementById('result-' + name).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
+
+  // Update progress text
+  const count = state.enginesCompleted.size;
+  document.getElementById('engines-progress').textContent =
+    `${count}/4 engine${count !== 1 ? 's' : ''} completed`;
+
+  // Show roadmap CTA after 2+ engines
+  if (count >= 2) {
+    document.getElementById('roadmap-cta').classList.add('visible');
+  }
+
+  // Init simulator if needed
+  if (name === 'simulator') {
+    updateSimulator(523000);
+    updateSliderGradient(523000);
+  }
+}
+
+// ─── Simulation engine ────────────────────────────────────────────────────────
+function updateSimulator(budget) {
+  budget = Number(budget);
+  updateSliderGradient(budget);
+
+  const result = window.VOLTZ.simulator.simulate(budget);
+
+  document.getElementById('sim-budget-display').textContent = '$' + budget.toLocaleString();
+
+  // Fix list
+  const fixList = document.getElementById('sim-fix-list');
+  fixList.innerHTML = result.included.map(fix => `
+    <div class="sim-fix-row ${fix.included ? 'included' : 'excluded'}">
+      <span class="sim-fix-check">${fix.included ? '✅' : '⬜'}</span>
+      <span class="sim-fix-name">${fix.name}</span>
+      <span class="sim-fix-cost">$${fix.cost.toLocaleString()} · saves $${fix.annualSavings.toLocaleString()}/yr · +${fix.scoreGain} pts</span>
+    </div>
+  `).join('');
+
+  // Stats
+  const scoreEl = document.getElementById('sim-score');
+  const tier = window.VOLTZ.score.tier(result.newScore);
+  const scoreColor = tier === 'green' ? 'var(--green)' : tier === 'amber' ? 'var(--amber)' : 'var(--red)';
+  scoreEl.textContent = result.newScore + '/100';
+  scoreEl.style.color = scoreColor;
+
+  document.getElementById('sim-score-sub').textContent =
+    result.totalScoreGain > 0 ? `+${result.totalScoreGain} points from baseline` : 'No fixes selected';
+
+  document.getElementById('sim-savings').textContent =
+    result.totalSavings > 0 ? '$' + result.totalSavings.toLocaleString() : '$0';
+
+  document.getElementById('sim-payback').textContent =
+    result.paybackYears > 0 ? result.paybackYears.toFixed(2) + ' yrs' : '—';
+
+  document.getElementById('sim-total-cost').textContent =
+    '$' + result.totalCost.toLocaleString();
+
+  // Grant coverage box
+  const grantBox = document.getElementById('sim-grant-box');
+  const grantTitle = document.getElementById('sim-grant-title');
+  const grantDesc = document.getElementById('sim-grant-desc');
+
+  if (result.totalCost === 0) {
+    grantBox.style.display = 'none';
+  } else {
+    grantBox.style.display = 'flex';
+    if (result.surplus > 0) {
+      grantTitle.textContent = '🎯 Grants fully cover this investment';
+      grantDesc.textContent = `$660,000 in available grants exceeds $${result.totalCost.toLocaleString()} project cost — $${result.surplus.toLocaleString()} surplus remaining.`;
+    } else if (result.netCost === 0) {
+      grantTitle.textContent = '✅ Grants exactly cover this investment';
+      grantDesc.textContent = `$${result.grantsApplied.toLocaleString()} in grants covers 100% of project cost. Net investment: $0.`;
+    } else {
+      grantTitle.textContent = 'Grants cover most of this investment';
+      grantDesc.textContent = `$${result.grantsApplied.toLocaleString()} in grants applied. Net cost after grants: $${result.netCost.toLocaleString()}.`;
+    }
+  }
+}
+
+function updateSliderGradient(value) {
+  const slider = document.getElementById('budget-slider');
+  const pct = ((value - slider.min) / (slider.max - slider.min)) * 100;
+  slider.style.setProperty('--pct', pct + '%');
+}
+
+// ─── SCREEN 4 — Roadmap ───────────────────────────────────────────────────────
+function buildRoadmap() {
+  buildTimeline();
+  buildExpansion();
+}
+
+function buildTimeline() {
+  const roadmap = window.VOLTZ.roadmap.generate();
+  const container = document.getElementById('roadmap-timeline');
+
+  container.innerHTML = roadmap.phases.map(phase => {
+    const phaseColorMap = { blue: 'var(--blue)', amber: 'var(--amber)', green: 'var(--green)' };
+    const stepsHtml = phase.steps.map(step => {
+      const hasScore = !!step.scoreImpact;
+      const tags = [];
+      if (step.contractor) tags.push(`<span class="step-tag tag-gray">🏗️ ${step.contractor}</span>`);
+      if (step.cost > 0) tags.push(`<span class="step-tag tag-amber">💰 $${step.cost.toLocaleString()}</span>`);
+      if (step.grant) tags.push(`<span class="step-tag tag-green">🎁 ${step.grant}</span>`);
+      if (step.scoreImpact) tags.push(`<span class="step-tag tag-blue">📈 ${step.scoreImpact}</span>`);
+      if (step.savingsUnlocked) tags.push(`<span class="step-tag tag-green">💵 ${step.savingsUnlocked}</span>`);
+
+      return `
+        <div class="timeline-step ${hasScore ? 'has-score' : ''}">
+          <div class="step-week">${step.week}</div>
+          <div class="step-action">${step.action}</div>
+          <div class="step-desc">${step.description}</div>
+          ${tags.length ? `<div class="step-meta">${tags.join('')}</div>` : ''}
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="timeline-phase">
+        <div class="phase-header">
+          <span class="phase-label" style="background:${phaseColorMap[phase.color]}15;color:${phaseColorMap[phase.color]}">${phase.phase}</span>
+          <span class="phase-weeks">${phase.weeks}</span>
+        </div>
+        ${stepsHtml}
+      </div>`;
+  }).join('');
+}
+
+function buildExpansion() {
+  const roadmap = window.VOLTZ.roadmap.generate();
+  const container = document.getElementById('expansion-grid');
+  container.innerHTML = roadmap.expansion.map(b => {
+    const fromColor = 'var(--red)';
+    const toColor = 'var(--green)';
+    return `
+      <div class="expansion-card">
+        <div class="expansion-type">${b.buildingType}</div>
+        <div class="expansion-scores">
+          <div class="exp-score-box" style="background:var(--red-light)">
+            <div class="exp-score-val" style="color:${fromColor}">${b.currentScore}</div>
+            <div class="exp-score-lbl" style="color:${fromColor}">Current</div>
+          </div>
+          <div class="exp-arrow">→</div>
+          <div class="exp-score-box" style="background:var(--green-light)">
+            <div class="exp-score-val" style="color:${toColor}">${b.projectedScore}</div>
+            <div class="exp-score-lbl" style="color:${toColor}">Projected</div>
+          </div>
+        </div>
+        <div class="expansion-fix">🔧 ${b.primaryFix}</div>
+        <div style="font-size:12px;color:var(--gray-400);margin-bottom:6px;">⏱ ${b.timelineWeeks} weeks · ${b.sqft.toLocaleString()} sqft</div>
+        <div class="expansion-savings">💵 Est. $${(b.estimatedSavings/1000).toFixed(0)}K/yr savings potential</div>
+      </div>`;
+  }).join('');
+}
+
+// ─── Copy email ───────────────────────────────────────────────────────────────
+function copyEmail() {
+  const body = document.getElementById('email-body-1').textContent;
+  const subject = 'How [University] reduced energy costs 34% — and how yours can too';
+  const full = `Subject: ${subject}\n\n${body}`;
+  navigator.clipboard.writeText(full).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => { btn.innerHTML = '📋 Copy Email'; }, 2000);
+  });
+}
+
+// ─── Start new building ───────────────────────────────────────────────────────
+function startNew() {
+  // Reset state
+  state.enginesCompleted.clear();
+  state.activeEngine = null;
+
+  // Clear engine cards
+  ['grants','carbon','contractors','simulator'].forEach(name => {
+    document.getElementById('eng-card-' + name).classList.remove('active', 'done');
+    document.getElementById('eng-done-' + name).textContent = '';
+    document.getElementById('result-' + name).classList.remove('active');
+  });
+  document.getElementById('roadmap-cta').classList.remove('visible');
+  document.getElementById('engines-progress').textContent = 'Click any engine above to begin';
+
+  // Clear form
+  ['f-university','f-building','f-type','f-zone','f-year','f-sqft','f-kwh','f-cost'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+
+  goToScreen(1);
+}
+
+// ─── Init ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Simulator slider default
+  document.getElementById('budget-slider').value = 523000;
+  updateSliderGradient(523000);
+});
+</script>
+</body>
+</html>
